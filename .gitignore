@@ -1,0 +1,4 @@
+*.db
+*.parquet
+catboost_info/
+*.pkl
