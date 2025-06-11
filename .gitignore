@@ -2,3 +2,4 @@
 *.parquet
 catboost_info/
 *.pkl
+*.csv
