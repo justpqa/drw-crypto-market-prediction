@@ -4,3 +4,4 @@ catboost_info/
 *.pkl
 *.csv
 .DS_Store
+venv/

@@ -11,3 +11,5 @@ lightgbm
 catboost
 optuna
 statsmodels
+shap
+ipykernel
