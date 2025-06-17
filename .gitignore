@@ -1,4 +1,4 @@
-*.db
+# *.db to revert back to old .db if needed
 *.parquet
 catboost_info/
 *.pkl

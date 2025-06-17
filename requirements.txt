@@ -13,3 +13,4 @@ optuna
 statsmodels
 shap
 ipykernel
+torch
