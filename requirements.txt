@@ -15,3 +15,4 @@ shap
 ipykernel
 torch
 statsmodels
+mlx
