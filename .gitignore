@@ -1,7 +1,7 @@
 # *.db 
 *.parquet
 catboost_info/
-# *.pkl
+*.pkl
 *.csv
 .DS_Store
 venv/
