@@ -17,6 +17,10 @@ Current note on approaches:
         - GBDT models saw improvement
         - MLP models saw improvement in overall CV, but the correlation between different folds are very unstable comparing to other models
         => Both boost cv by 0.02-0.04 (for MLP, cv boost by 0.05-0.1)
+    + Final combination:
+        - GBDT with interactions
+        - MLP with no interaction
+        - Both models use 3 different seeds
 - Prediction process:
     + Ensemble of GBDT + MLP
     + Train at different time slices of different size in the train data in hoping that the model can learn different trends overtime in crypto market since crypto market changes rapidly and can have different regime (boost CV by 0.015-0.02)
