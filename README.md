@@ -1,26 +1,98 @@
-This is my repo for the DRW Crypto Market Prediction competition in [Kaggle](https://www.kaggle.com/competitions/drw-crypto-market-prediction/overview) (currently ranked 13/1096 teams in the private leaderboard)
+# 🧠 DRW Crypto Market Prediction – Kaggle Competition 🪙📈
 
-My approaches (detailed writeup will be updated later):
-- EDA & Feature Engineering: 
-    + Only used top 100-200 feature correlated with label the most, along with some popular features (bid, ask, buy, sell qty, volume, order flow imbalance, etc.), later have to remove extra popular features like order flow imbalance or volume weighted buy due to the old popular features were normalized in new data => these features lose meaning and less important
-    + Clustering features to find out that top features correlated with label often come together in the same cluster => strong in predicting
-    + Clustering data points based on popular features => might build specific models for each scenario since clustering did separate between data points with very high/very low label and other
-    + Create interaction features based on strong features selected by GBDT models 
-    => found features that have higher correlation with label (0.09 - 0.1 comparing to 0.05 for single features), add them to the model
-    + What did not work: incremental PCA to identify what feature contribute to variability (about 100 features takes up 80% variance), analyze the lagging of popular features (and newly created features) to find out what are the anonymized features are about
-- Modeling process:
-    + Starting with GBDT model (XGBoost > LightGBM > CatBoost, not really use the last one comparing to first 2) on (only anonymized, anonymized + popular => only anonymized perform better)
-    + Utilize SHAP to identify top features + experimenting to found that working with top 30 features chosen by GBDT work the best
-    + Train XGBoost and LightGBM on new features, all part of of process were optimized with Optuna (Bayesian Optimization wuth TPE Sampling)
-    + Train MLP model using MLX on the top features => work much better than XGBoost and LightGBM without training a lot (batch size: fill each 30 min/1 hour/2 hours/12 hours/etc., only shuffle after batching), so that the model update based on data in the time-forward manner
-    + Update model to be more powerful by incorporating interaction features
-        - GBDT models saw improvement
-        - MLP models saw improvement in overall CV, but the correlation between different folds are very unstable comparing to other models
-        => Both boost cv by 0.02-0.04 (for MLP, cv boost by 0.05-0.1)
-    + Final combination:
-        - GBDT with interactions
-        - MLP with no interaction
-        - Both models use 3 different seeds
-- Prediction process:
-    + Ensemble of GBDT + MLP
-    + Train at different time slices of different size in the train data in hoping that the model can learn different trends overtime in crypto market since crypto market changes rapidly and can have different regime (boost CV by 0.015-0.02)
+This is my repository for the **[DRW Crypto Market Prediction](https://www.kaggle.com/competitions/drw-crypto-market-prediction/overview)** competition on Kaggle.  
+🎯 **Currently ranked 13th out of 1,096 teams** on the **private leaderboard**.
+
+---
+
+## 🧮 Problem Statement
+
+Participants must **develop models capable of predicting future crypto market price movements**, using only known market metrics & anonymous features, and without time information upon prediction
+
+---
+
+## 🔍 EDA & Feature Engineering
+
+- 🔢 **Feature Selection**
+  - Used the **top 100–200 features most correlated with the label**, plus common market metrics created later on:
+    - `bid`, `ask`, `buy/sell qty`, `volume`, `order flow imbalance`, etc.
+  - Later removed some “popular” features (like `order flow imbalance`, `volume-weighted buy`) due to **normalization** in newer data → these features **lost meaning** and became **less predictive**.
+
+- 🧬 **Feature Clustering**
+  - Clustering features showed that **highly correlated features often appear in the same cluster** → strong predictors.
+  - Clustering **data points** based on popular features separated scenarios with **extreme labels** (very high/low) from the rest.
+    → Suggests potential for **scenario-specific modeling**.
+
+- 🔁 **Interaction Features**
+  - Built interactions using top features selected by **GBDT models**.
+  - Some new features showed **correlation with the label up to 0.09–0.1**, compared to ~0.05 for single features → **significant gain**.
+
+- ❌ **What Didn't Work**
+  - **Incremental PCA** to analyze feature importance → ~100 features explain ~80% of variance, but didn't help modeling.
+  - **Lag analysis** on popular and engineered features to reverse-engineer anonymized ones → no consistent insight.
+
+---
+
+## 🧠 Modeling Process
+
+- 🌲 **Gradient Boosted Decision Trees (GBDT)**
+  - Started with **XGBoost > LightGBM
+  - Compared performance across:
+    - **Only anonymized features**
+    - **Anonymized + popular features** (popular features is not as useful, but they might unravel information regarding market regime)
+    - **Anonymized + popular features + engineered market features** (which later show that since the data is normalized before, these features lose its meaning and predictive power)
+    - Result: **Only anonymized performed better**.
+  - Used **SHAP** to identify top 30 most important features → best performance came from limiting to this set.
+  - Identify interaction of these 30 features => new features to model => +0.02 to +0.04 CV Boost => use **anonymized with interaction features** model
+
+- 🔥 **MLP (Multi-Layer Perceptron) with MLX**
+  - Trained on the **same top features** as GBDT.
+  - **Outperformed XGBoost and LightGBM**, even with **minimal tuning**.
+  - **Batching strategy**:
+    - Grouped data into batches by time (e.g., 30 min / 1 hr / 2 hr / 12 hr).
+    - Only **shuffle after batching**, preserving **time-forward progression**.
+  - Integrated interaction features into MLP with +0.05 to +0.1 in CV score but more unstable in LB => revert back to **only anonymized features** model
+  - ⚠️ MLP's fold correlation was **less stable**, likely due to sensitivity in training process.
+
+- 🧬 **Final Combination**
+  - Ensemble of 2 models with equal weight
+      - ✅ **GBDT** with interaction features  
+      - ✅ **MLP** without interaction features
+  - Each set of models trained on differen timeframes trained using 3 different random seeds
+ 
+- ❌ **What Didn’t Work (Modeling)**
+  - **Combining anonymized + popular features** often led to worse performance than using anonymized alone.
+  - **Using too many features** (instead of selecting top ones) degraded performance due to noise and overfitting.
+  - **Using the Supervised Autoencoder-MLP** to find non-linear latent features that could be powerful predictor
+
+---
+
+## ⚙️ Training & CV Strategy
+
+- 🎯 **Objective**:  
+  All models were trained using **Mean Squared Error (MSE)** directly as the loss function.
+
+- 📦 **Hyperparameter Optimization**:  
+  Tuning was done with **Optuna**, using **TPE (Tree-structured Parzen Estimator) sampler** for Bayesian Optimization.
+
+- 🧪 **Cross-Validation Strategy**:  
+  Employed a **rolling window CV** with:
+  - `4 months` for training  
+  - `1 month` gap (to prevent data leakage)  
+  - `4 months` for testing  
+  - Repeated for **4 folds**
+
+  This setup was designed to **respect temporal structure** in the crypto market and improve generalization to unseen time periods.
+
+---
+
+## 📦 Prediction Process
+
+- 🤝 **Final Ensemble = GBDT + MLP**
+- 🕒 Trained models at **different time slices** using **different chunk sizes** in the training data:
+  - Helps model **different market regimes** and capture **shifting crypto trends**
+  - 🎯 Result: Boosted Pearson Correlation by **~0.015–0.02**
+
+---
+
+Thanks for checking out the repo! ⭐️ Feel free to follow or reach out with any questions.
