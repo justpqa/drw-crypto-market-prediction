@@ -1,6 +1,6 @@
-This is my repo for the DRW Crypto Market Prediction competition in [Kaggle](https://www.kaggle.com/competitions/drw-crypto-market-prediction/overview). Details on my approach will be updated later after the end of the competition.
+This is my repo for the DRW Crypto Market Prediction competition in [Kaggle](https://www.kaggle.com/competitions/drw-crypto-market-prediction/overview) (currently ranked 13/1096 teams in the private leaderboard)
 
-Current note on approaches:
+My approaches (detailed writeup will be updated later):
 - EDA & Feature Engineering: 
     + Only used top 100-200 feature correlated with label the most, along with some popular features (bid, ask, buy, sell qty, volume, order flow imbalance, etc.), later have to remove extra popular features like order flow imbalance or volume weighted buy due to the old popular features were normalized in new data => these features lose meaning and less important
     + Clustering features to find out that top features correlated with label often come together in the same cluster => strong in predicting
