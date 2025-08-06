@@ -1,7 +1,7 @@
 # 🧠 DRW Crypto Market Prediction – Kaggle Competition 🪙📈
 
 This is my repository for the **[DRW Crypto Market Prediction](https://www.kaggle.com/competitions/drw-crypto-market-prediction/overview)** competition on Kaggle.  
-🎯 **Currently ranked 13th out of 1,096 teams** on the **private leaderboard**.
+🎯 **Currently ranked 13th out of 1,092 teams** on the **private leaderboard**.
 
 ---
 
